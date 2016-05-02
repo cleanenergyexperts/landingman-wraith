@@ -1,3 +1,6 @@
+require 'tempfile'
+require 'yaml'
+
 # CLI Module
 module Middleman::Cli
   # The CLI Wraith class
@@ -61,8 +64,7 @@ module Middleman::Cli
         exit(1)
       end
 
-      say("=== Running Wraith ===")
-      config = {
+      wraith_config = {
         "domains" => {
           "production" => production_url, 
           "staging" => staging_url
@@ -76,7 +78,18 @@ module Middleman::Cli
         "mode" => options['mode'] || "diffs_first",
         "verbose" => options['verbose']
       }
-      ::Landingman::WraithAdapter.new.capture(config)
+
+      config_file = Tempfile.new(['wraith', '.yaml'])
+      begin
+        config_file.write(wraith_config.to_yaml)
+        config_file.flush
+        config_file.close
+
+        say("=== Running Wraith ===")
+        ::Landingman::WraithAdapter.new.capture(config_file.path)
+      ensure
+        config_file.unlink    # deletes the temp file
+      end
     end
 
     # Add to CLI
