@@ -46,7 +46,7 @@ module Middleman::Cli
 
         ::Middleman::Logger.singleton(opts[:debug] ? 0 : 1, opts[:instrumenting] || false)
       end
-      paths = MIDDLEMAN_APP.sitemap.resources.select {|r| r.path.end_with?('.html') }.map do |r| 
+      paths = @app.sitemap.resources.select {|r| r.path.end_with?('.html') }.map do |r| 
         [r.path.gsub(/\//,'_').gsub(/[^0-9A-Za-z.\-]/, '_'), r.url]
       end.to_h
 
