@@ -31,8 +31,12 @@ module Middleman::Cli
                  desc: 'The directory to place the reports and screenshots in'
     class_option :mode,
                  type: :string,
-                 default: 'diffs_first',
-                 desc: 'The wraith mode to use to generate the screenshot report'
+                 default: 'diffs_only',
+                 desc: 'The wraith mode to use to generate the screenshot report: diffs_only, diffs_first, alphanumeric'
+    class_option :screen_widths,
+                 type: :string,
+                 default: '320,640,1366',
+                 desc: 'Comma separated screen resolutions'
 
     def wraith
       require 'middleman-core'
@@ -64,6 +68,11 @@ module Middleman::Cli
         exit(1)
       end
 
+      screen_widths = [320, 640, 1366] #[320, 640, 1024, 1280, 1366, 1920]
+      if !options['screen_widths'].nil? && !options['screen_widths'].empty? then
+        screen_widths = options['screen_widths'].split(',')
+      end
+
       wraith_config = {
         "domains" => {
           "production" => production_url, 
@@ -72,10 +81,10 @@ module Middleman::Cli
         "paths" => paths, 
         "fuzz" => "20%", 
         "threshold" => 5, 
-        "screen_widths" => [320, 640, 1024, 1280, 1366, 1920], 
+        "screen_widths" => screen_widths, 
         "browser" => "phantomjs", 
         "directory" => options['directory'] || "screenshots", 
-        "mode" => options['mode'] || "diffs_first",
+        "mode" => options['mode'] || "diffs_only",
         "verbose" => options['verbose']
       }
 
